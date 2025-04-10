@@ -1,16 +1,16 @@
+/** @format */
+
 import axios from 'axios';
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 function CourseList() {
   const [courses, setCourses] = useState([]);
-
+  let token = 'Bearer 16|CNlHKFRIP7fR6aQrRBc826JkyKHe79HgIBFvdgvMc959e2f9';
   useEffect(() => {
     axios({
       method: 'GET',
       url: 'http://localhost:8000/api/courses',
-    //   headers: {
-    //     Authorization: '14|BLmXjP4emqxq4rdRj4NolGxD0A5WAlAuN6fRRP8j4eee6b45',
-    //   },
     })
       .then((response) => {
         console.log(response.data);
@@ -21,6 +21,22 @@ function CourseList() {
         console.error('Error:', error);
       });
   }, []);
+
+  //delete
+  const handleDelete = (id) => {
+    if (window.confirm('Confirmer la suppression ?')) {
+      axios
+        .delete(`http://localhost:8000/api/courses/${id}`, {
+          headers: { Authorization: token },
+        })
+        .then(() => {
+          setCourses((prev) => prev.filter((course) => course.id !== id));
+        })
+        .catch((err) => {
+          console.error('Erreur suppression:', err.response?.data);
+        });
+    }
+  };
 
   return (
     <section className="py-12 px-4 max-w-7xl mx-auto">
@@ -53,6 +69,16 @@ function CourseList() {
                 <span className="font-normal">{course.mentor?.name}</span>
               </p>
             </div>
+            <button
+              onClick={() => handleDelete(course.id)}
+              className="mt-2 text-sm text-red-600 hover:underline">
+              Delete
+            </button>
+            <Link
+              to={`/edit-course/${course.id}`}
+              className="text-blue-600 hover:underline">
+              Edit
+            </Link>
           </div>
         ))}
       </div>
